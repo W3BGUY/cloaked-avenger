@@ -1,0 +1,17 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+
+global
+{
+	content-background-color: #202020;
+	chrome-color: #0C0C0C;
+	content-background-alpha: 0.0;
+	focus-color: #202020;
+	symbol-color: #202020;
+	selection-color: #202020;
+	roll-over-color: #202020;
+	color: #C0C0C0;
+}
+	

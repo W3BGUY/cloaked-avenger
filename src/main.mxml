@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   applicationComplete="init()"
+					   width="400" height="400" backgroundAlpha="0.0" backgroundColor="#202020"
+					   currentState="mainState" preloaderChromeColor="#202020">
+	<s:states>
+		<s:State name="mainState"/>
+		<s:State name="aboutState"/>
+	</s:states>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			
+			[Bindable] private var currentVersion:String;
+			
+			private function init():void{
+				currentVersion=getAppVersion();
+			}
+			
+			private function moveIT(event:MouseEvent):void{
+				nativeWindow.startMove();
+			}
+			
+			private function getAppVersion():String {
+				var appXml:XML = NativeApplication.nativeApplication.applicationDescriptor;
+				var ns:Namespace = appXml.namespace();
+				var appVersion:String = appXml.ns::versionNumber[0];
+				return appVersion;
+			}
+			
+			// Function to exit application
+			private function closeApp():void{
+				for (var i:int=NativeApplication.nativeApplication.openedWindows.length-1;i>=0;--i){
+					NativeWindow(NativeApplication.nativeApplication.openedWindows[i]).close();
+				}
+			}
+			
+			private function aboutButtonPressed():void{
+				if(currentState=="mainState"){
+					currentState="aboutState";
+				}else{
+					currentState="mainState";
+				}
+				return;	
+			}
+			
+			private function startEncrypt():void{
+				var currentEncryptString:String='';
+				var newEncryptString:String='';
+				if(encrypt_textArea.text!=null && encrypt_textArea.text!=''){
+					currentEncryptString=encrypt_textArea.text;
+					encrypt_textArea.text='';
+					currentEncryptString=currentEncryptString.split("").reverse().join("");
+					var newCharCode:Number;
+					var amountToUp:Number=0;
+					
+					for(var j:Number=0;j<currentEncryptString.length;j++){
+						if(currentEncryptString.charCodeAt(j)==10 || currentEncryptString.charCodeAt(j)==32){
+							newCharCode=currentEncryptString.charCodeAt(j);
+						}else{
+							if((currentEncryptString.charCodeAt(j)+3)>126){
+								amountToUp=33+((currentEncryptString.charCodeAt(j)+3)-126);
+								newCharCode=(currentEncryptString.charCodeAt(j)+(amountToUp));
+							}else{
+								newCharCode=(currentEncryptString.charCodeAt(j)+3);
+							}
+						}
+						
+						newEncryptString+=String.fromCharCode(newCharCode);
+					}
+					currentEncryptString=newEncryptString.split("").reverse().join("");
+					currentEncryptString=newEncryptString;
+					
+					decrypt_textArea.text=currentEncryptString;
+				}else{
+					Alert.show("No text was found to encrypt.");
+				}
+			}
+			
+			private function startDecrypt():void{
+				var currentDecryptString:String='';
+				var newDecryptString:String='';
+				if(decrypt_textArea.text!=null && decrypt_textArea.text!=''){
+					currentDecryptString=decrypt_textArea.text;
+					decrypt_textArea.text='';
+					currentDecryptString=currentDecryptString.split("").reverse().join("");
+					var newCharCode:Number;
+					var amountToUp:Number=0;
+					
+					for(var i:Number=0;i<currentDecryptString.length;i++){
+						if(currentDecryptString.charCodeAt(i)==10 || currentDecryptString.charCodeAt(i)==32){
+							newCharCode=currentDecryptString.charCodeAt(i);
+						}else{
+							if((currentDecryptString.charCodeAt(i)-3)<33){
+								amountToUp=126-((currentDecryptString.charCodeAt(i)-3)+33);
+								newCharCode=(currentDecryptString.charCodeAt(i)-(amountToUp));
+							}else{
+								newCharCode=(currentDecryptString.charCodeAt(i)-3);
+							}
+						}
+						
+						newDecryptString+=String.fromCharCode(newCharCode);
+					}
+					
+					currentDecryptString=newDecryptString.split("").reverse().join("");
+					currentDecryptString=newDecryptString;
+					
+					encrypt_textArea.text=currentDecryptString;
+				}else{
+					Alert.show("No text was found to decrypt.");
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:BorderContainer id="appData" x="0" y="0" width="400" height="400" backgroundAlpha="0.0"
+					   backgroundColor="#202020" borderAlpha="0.0" borderColor="#202020"
+					   borderVisible="false" chromeColor="#202020" color="#FFFFFF"
+					   contentBackgroundColor="#202020">
+		
+		<s:BorderContainer id="header_borderContainter" x="0" y="0" width="400" height="25"
+						   backgroundColor="#303030" borderVisible="false" mouseDown="{this.moveIT(event)}">
+			<s:Label id="title_label" x="0" y="0" width="218" height="25" color="#C0C0C0"
+					 fontSize="14" fontWeight="bold" paddingLeft="10" text="Simple Text Encrypter"
+					 verticalAlign="middle"
+					 width.aboutState="263" text.aboutState="Simple Text Encrypter: About"/>
+			<s:Button id="titleAbout_button" x="304" y="3" width="28" height="20" label="?"
+					  chromeColor="#505050" click="aboutButtonPressed();" color="#C0C0C0" fontWeight="bold"/>
+			<s:Button id="titleExit_button" x="340" y="3" width="50" height="20" label="Exit"
+					  chromeColor="#505050" click="closeApp();" color="#C0C0C0" fontWeight="bold"/>
+		</s:BorderContainer>
+		
+		
+		<s:TextArea id="encrypt_textArea" includeIn="mainState" x="10" y="33" width="380"
+					height="150" borderVisible="true" chromeColor="#A0A0A0"
+					contentBackgroundColor="#A0A0A0" prompt="Enter text to encrypt here"/>
+		<s:TextArea id="decrypt_textArea" includeIn="mainState" x="10" y="191" width="380"
+					height="150" borderVisible="true" chromeColor="#A0A0A0"
+					contentBackgroundColor="#A0A0A0" prompt="Enter text to decrypt here"/>
+		<s:Button id="encrypt_button" includeIn="mainState" x="182" y="349" width="100" height="20"
+				  label="Encrypt Text" chromeColor="#505050" click="startEncrypt();" color="#C0C0C0"
+				  fontWeight="bold"/>
+		<s:Button id="decrypt_button" includeIn="mainState" x="290" y="349" width="100" height="20"
+				  label="Decrypt Text" chromeColor="#505050" click="startDecrypt();" color="#C0C0C0"
+				  fontWeight="bold"/>
+		
+		<!-- About State -->
+		<s:Label includeIn="aboutState" x="10" y="48" width="380" height="154" text="This Simple Text Encoder was just created as a fast and easy way to encrypt text.  I created this app after the need for encrypted text, to block spying eyes, came up.&#xd;&#xd;Currently it is limited to standard english characters.  The next version is set to include non-English characters.&#xd;&#xd;Please check my website for updates, and/or other apps.  I am planning a mobile version of this app, coming soon."/>
+		
+		<s:Button id="returnToApp_button" includeIn="aboutState" x="79" y="210" width="243" height="20"
+				  label="Return To Application" chromeColor="#505050" click="aboutButtonPressed();" color="#C0C0C0"
+				  fontWeight="bold"/>
+		
+		<s:Label includeIn="aboutState" x="85" y="310" width="150" height="20" fontWeight="bold"
+				 text="Created By:" textAlign="right" verticalAlign="middle"/>
+		<s:Label includeIn="aboutState" x="85" y="330" width="150" height="20" fontWeight="bold"
+				 text="Current Version:" textAlign="right" verticalAlign="middle"/>
+		<s:Label includeIn="aboutState" x="85" y="350" width="150" height="20" fontWeight="bold"
+				 text="Website:" textAlign="right" verticalAlign="middle"/>
+		
+		<s:Label includeIn="aboutState" x="240" y="310" width="150" height="20" text="Charles Bastian"
+				 verticalAlign="middle"/>
+		<s:Label includeIn="aboutState" x="240" y="330" width="150" height="20" text="{currentVersion}"
+				 verticalAlign="middle"/>
+		<s:Label includeIn="aboutState" x="240" y="350" width="150" height="20"
+				 text="http://CharlesBastian.com" verticalAlign="middle"/>
+		
+	</s:BorderContainer>
+</s:WindowedApplication>
